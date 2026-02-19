@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, X, Landmark, Banknote } from 'lucide-react';
 import { TransactionType, PaymentMethod, INCOME_CATEGORIES, EXPENSE_CATEGORIES, BankAccount } from '../types';
@@ -92,7 +91,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ userId }) => {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-8 right-8 sm:static bg-indigo-600 text-white px-8 py-4 rounded-3xl shadow-2xl hover:bg-indigo-700 transition-all flex items-center space-x-3 font-black uppercase text-xs z-40"
+        className="fixed bottom-28 right-8 sm:static bg-indigo-600 text-white px-8 py-4 rounded-3xl shadow-2xl hover:bg-indigo-700 transition-all flex items-center space-x-3 font-black uppercase text-xs z-40 active:scale-95"
       >
         <PlusCircle className="w-5 h-5" />
         <span>New Transaction</span>
@@ -103,7 +102,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ userId }) => {
           <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-300">
             <div className="flex items-center justify-between p-8 border-b border-gray-50 bg-gray-50/50">
               <h2 className="text-2xl font-black text-gray-900 uppercase">Entry Form</h2>
-              <button onClick={() => setIsOpen(false)} className="bg-white p-3 rounded-2xl shadow-sm text-gray-400 hover:text-gray-600 border border-gray-100">
+              <button onClick={() => setIsOpen(false)} className="bg-white p-3 rounded-2xl shadow-sm text-gray-400 hover:text-gray-600 border border-gray-100 transition-colors">
                 <X className="w-6 h-6" />
               </button>
             </div>
@@ -127,11 +126,11 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ userId }) => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <button type="button" onClick={() => setPaymentMethod('bank')} className={`flex flex-col items-center p-4 border-2 rounded-2xl transition-all gap-2 ${paymentMethod === 'bank' ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-gray-50 text-gray-400'}`}>
+                <button type="button" onClick={() => setPaymentMethod('bank')} className={`flex flex-col items-center p-4 border-2 rounded-2xl transition-all gap-2 ${paymentMethod === 'bank' ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-gray-50 text-gray-400 hover:border-gray-200'}`}>
                   <Landmark className="w-6 h-6" />
                   <span className="text-[10px] font-black uppercase">Bank</span>
                 </button>
-                <button type="button" onClick={() => setPaymentMethod('cash')} className={`flex flex-col items-center p-4 border-2 rounded-2xl transition-all gap-2 ${paymentMethod === 'cash' ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-gray-50 text-gray-400'}`}>
+                <button type="button" onClick={() => setPaymentMethod('cash')} className={`flex flex-col items-center p-4 border-2 rounded-2xl transition-all gap-2 ${paymentMethod === 'cash' ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-gray-50 text-gray-400 hover:border-gray-200'}`}>
                   <Banknote className="w-6 h-6" />
                   <span className="text-[10px] font-black uppercase">Cash</span>
                 </button>
@@ -179,7 +178,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ userId }) => {
                 </div>
               </div>
 
-              <button type="submit" disabled={loading || (paymentMethod === 'bank' && userBanks.length === 0)} className="w-full bg-indigo-600 text-white py-5 rounded-2xl font-black text-lg hover:bg-indigo-700 transition-all shadow-xl disabled:opacity-50">
+              <button type="submit" disabled={loading || (paymentMethod === 'bank' && userBanks.length === 0)} className="w-full bg-indigo-600 text-white py-5 rounded-2xl font-black text-lg hover:bg-indigo-700 transition-all shadow-xl disabled:opacity-50 active:scale-95">
                 {loading ? 'Processing...' : 'Save Entry'}
               </button>
             </form>
@@ -191,3 +190,4 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ userId }) => {
 };
 
 export default TransactionForm;
+            
