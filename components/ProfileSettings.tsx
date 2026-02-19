@@ -2,7 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { User, Mail, Image as ImageIcon, CheckCircle2, Save, Fingerprint, Upload, Camera } from 'lucide-react';
 import { UserProfile } from '../types';
-import { auth } from '../firebase';
+import { auth, db, doc, setDoc } from '../firebase';
 import { updateProfile } from 'firebase/auth';
 
 interface ProfileSettingsProps {
@@ -23,12 +23,27 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
     setLoading(true);
     setSuccess(false);
     try {
+      // 1. Update Firebase Auth Profile
       await updateProfile(auth.currentUser, {
         displayName: displayName,
         photoURL: photoURL
       });
+
+      // 2. Persist to Firestore Users Collection for long-term consistency
+      const profileRef = doc(db, 'users', auth.currentUser.uid);
+      await setDoc(profileRef, {
+        displayName: displayName,
+        photoURL: photoURL,
+        email: user.email,
+        updatedAt: Date.now()
+      }, { merge: true });
+
       setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
+      setTimeout(() => {
+        setSuccess(false);
+        // Reload to sync the app state with fresh Firestore data
+        window.location.reload(); 
+      }, 1500);
     } catch (err) {
       console.error(err);
       alert("Profile update failed.");
@@ -40,6 +55,10 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 1024 * 1024) { 
+         alert("Image too large. Please select a photo smaller than 1MB.");
+         return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setPhotoURL(reader.result as string);
@@ -53,7 +72,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-48">
       <div className="flex flex-col md:flex-row gap-8 items-start">
         {/* Left Card: Avatar Preview */}
         <div className="w-full md:w-1/3 bg-white dark:bg-zinc-900 p-8 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-zinc-800 text-center space-y-4">
@@ -88,7 +107,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
           </div>
           <button 
             onClick={triggerFileInput}
-            className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-100 transition-all"
+            className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-100 transition-all shadow-sm"
           >
             <Upload className="w-4 h-4" />
             Gallery Photo
@@ -118,7 +137,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-[10px] font-black text-gray-400 dark:text-zinc-500 uppercase tracking-widest ml-1">Photo URL (Manual Override)</label>
+              <label className="block text-[10px] font-black text-gray-400 dark:text-zinc-500 uppercase tracking-widest ml-1">Photo URL (Manual / Uploaded)</label>
               <div className="relative">
                 <ImageIcon className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -126,13 +145,13 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
                   value={photoURL}
                   onChange={(e) => setPhotoURL(e.target.value)}
                   placeholder="https://images.com/my-photo.jpg"
-                  className="w-full pl-12 pr-6 py-4 bg-gray-50 dark:bg-zinc-800 dark:text-white border border-gray-100 dark:border-zinc-700 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all font-bold"
+                  className="w-full pl-12 pr-6 py-4 bg-gray-50 dark:bg-zinc-800 dark:text-white border border-gray-100 dark:border-zinc-700 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all font-bold truncate"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="block text-[10px] font-black text-gray-400 dark:text-zinc-500 uppercase tracking-widest ml-1">Email Address (Read-only)</label>
+              <label className="block text-[10px] font-black text-gray-400 dark:text-zinc-500 uppercase tracking-widest ml-1">Email (Read-only)</label>
               <div className="relative">
                 <Mail className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 opacity-50" />
                 <input
@@ -147,10 +166,10 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 transition-all uppercase tracking-widest shadow-xl ${
+              className={`w-full py-5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 transition-all uppercase tracking-widest shadow-xl active:scale-95 ${
                 success 
-                ? 'bg-emerald-500 text-white shadow-emerald-200 dark:shadow-none' 
-                : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-200 dark:shadow-none'
+                ? 'bg-emerald-500 text-white' 
+                : 'bg-indigo-600 text-white hover:bg-indigo-700'
               }`}
             >
               {loading ? (
@@ -158,12 +177,12 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
               ) : success ? (
                 <>
                   <CheckCircle2 className="w-6 h-6" />
-                  Updated
+                  Saved
                 </>
               ) : (
                 <>
                   <Save className="w-6 h-6" />
-                  Save Changes
+                  Save Settings
                 </>
               )}
             </button>
