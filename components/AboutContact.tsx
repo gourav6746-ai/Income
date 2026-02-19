@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, MessageSquare, Linkedin, Github, Globe, CheckCircle, Edit2, Lock } from 'lucide-react';
 // 1. Aapki image ka import (Iska naam dev.jpg rakhna aur src folder mein dalna)
-import devPhoto from './dev.jpg'; 
+import devPhoto from './dev.png'; 
 
 const AboutContact: React.FC = () => {
   // Form states
