@@ -1,7 +1,6 @@
-
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-import { getFirestore, collection, addDoc, query, where, onSnapshot, orderBy, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, query, where, onSnapshot, orderBy, deleteDoc, doc, updateDoc, setDoc, getDoc } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDFTHQYhDqICoi7hL39Ml0t8C1NFcp6xY0",
@@ -31,4 +30,4 @@ export const transactionsCollection = collection(db, 'transactions');
 export const banksCollection = collection(db, 'bankAccounts');
 
 // Re-export firestore functions
-export { addDoc, query, where, onSnapshot, orderBy, deleteDoc, doc, collection, updateDoc };
+export { addDoc, query, where, onSnapshot, orderBy, deleteDoc, doc, collection, updateDoc, setDoc, getDoc };
