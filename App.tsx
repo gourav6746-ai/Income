@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { query, where, onSnapshot, collection } from 'firebase/firestore';
+import { query, where, onSnapshot, collection, doc, getDoc } from 'firebase/firestore';
 import { auth, db, transactionsCollection } from './firebase';
 import { UserProfile, Transaction, BankAccount } from './types';
 import Auth from './components/Auth';
@@ -38,15 +38,21 @@ const App: React.FC = () => {
     }
   }, [darkMode]);
 
-  // Listen for Auth changes
+  // Listen for Auth changes and sync with Firestore Profiles
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
+        // Fetch additional profile data from Firestore to ensure persistence
+        const profileRef = doc(db, 'users', firebaseUser.uid);
+        const profileSnap = await getDoc(profileRef);
+        
+        const profileData = profileSnap.exists() ? profileSnap.data() : {};
+        
         setUser({
           uid: firebaseUser.uid,
           email: firebaseUser.email,
-          displayName: firebaseUser.displayName,
-          photoURL: firebaseUser.photoURL
+          displayName: profileData.displayName || firebaseUser.displayName,
+          photoURL: profileData.photoURL || firebaseUser.photoURL
         });
       } else {
         setUser(null);
@@ -128,7 +134,9 @@ const App: React.FC = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
               <div>
                 <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tight">Main Hub</h1>
-                <p className="text-gray-400 dark:text-zinc-500 font-medium text-lg italic">Tracking your wealth, one entry at a time.</p>
+                <p className="text-gray-400 dark:text-zinc-500 font-medium text-lg italic tracking-tight">
+                  Welcome back, <span className="text-indigo-600 dark:text-indigo-400 font-black">{user.displayName || 'User'}</span>
+                </p>
               </div>
               <TransactionForm userId={user.uid} />
             </div>
