@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { LogOut, Wallet, User as UserIcon, Moon, Sun, LayoutDashboard, Settings, Info } from 'lucide-react';
 import { UserProfile } from '../types';
@@ -86,11 +85,11 @@ const Layout: React.FC<LayoutProps> = ({ children, user, darkMode, setDarkMode, 
         </div>
       </nav>
 
-      <main className="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8">
+      <main className="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 pb-32 sm:pb-8">
         {children}
       </main>
       
-      <footer className="bg-white dark:bg-zinc-900 border-t border-gray-100 dark:border-zinc-800 py-10 mt-20">
+      <footer className="bg-white dark:bg-zinc-900 border-t border-gray-100 dark:border-zinc-800 py-10 mt-20 mb-20 md:mb-0">
         <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center space-x-2 grayscale opacity-50">
             <Wallet className="w-5 h-5 text-indigo-600" />
@@ -116,3 +115,4 @@ const Layout: React.FC<LayoutProps> = ({ children, user, darkMode, setDarkMode, 
 };
 
 export default Layout;
+                    
